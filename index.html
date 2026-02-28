@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#FFF1EB"> 
+    <meta name="theme-color" content="#FF7031"> 
     <title>Pawwi Chat Cliente</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,6 +15,7 @@
             --bg-cream: #FFF1EB;      
             --brand-navy: #120A2B;     
             --brand-pink: #F7AEF1;   
+            --brand-orange: #FF7031; /* Agregado del nuevo diseño */
             --white: #FFFFFF;
             --gray-light: #F3F4F6;
             --gray-text: #6B7280;
@@ -59,7 +60,7 @@
             }
         }
 
-        /* --- PANTALLA LOGIN (ADAPTADA AL ESTILO PAWWI) --- */
+        /* --- PANTALLA LOGIN (NUEVO DISEÑO OVERVIEW) --- */
         .login-screen {
             display: flex;
             flex-direction: column;
@@ -67,59 +68,84 @@
             align-items: center;
             height: 100%;
             padding: 20px;
-            background-color: var(--bg-cream);
+            /* Se aplica el fondo naranja y textura solo al login */
+            background-color: var(--brand-orange); 
+            background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
             z-index: 100;
         }
 
-        .login-logo {
-            font-size: 40px;
-            margin-bottom: 20px;
-            color: var(--brand-navy);
+        /* CARD FLOTANTE */
+        .login-card {
+            width: 100%; 
+            max-width: 380px;
+            background-color: var(--bg-cream);
+            border-radius: 32px;
+            padding: 40px 24px;
+            display: flex; flex-direction: column;
+            align-items: center;
+            box-shadow: 0 20px 50px rgba(18, 10, 43, 0.4);
+            position: relative;
         }
 
-        .login-screen h2 {
-            color: var(--brand-navy);
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: 800;
-        }
+        /* LOGO Y TEXTOS */
+        .logo-img { height: 40px; width: auto; margin-bottom: 24px; display: block; }
 
-        .login-input-wrapper {
+        .welcome-text { text-align: center; margin-bottom: 24px; color: var(--brand-navy); }
+        .welcome-text h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .welcome-text p { color: var(--gray-text); font-size: 0.95rem; line-height: 1.4; }
+
+        /* FORMULARIO LOGIN */
+        .login-form { width: 100%; display: flex; flex-direction: column; gap: 14px; }
+
+        /* Limitamos el alcance del input-wrapper para no romper el del chat */
+        .login-card .input-wrapper {
+            position: relative;
             background: var(--white);
-            border-radius: 24px;
-            padding: 5px 20px;
-            box-shadow: var(--shadow-soft);
-            margin-bottom: 15px;
+            border-radius: 16px;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(0,0,0,0.05);
+            display: flex; align-items: center;
+            padding: 0; /* Override del padding del chat */
+            min-height: auto;
+        }
+        
+        .login-card .input-wrapper:focus-within {
+            border-color: var(--brand-orange);
+            box-shadow: 0 4px 12px rgba(255, 112, 49, 0.15);
+        }
+
+        .input-icon { padding-left: 16px; color: var(--brand-navy); opacity: 0.5; font-size: 20px; }
+
+        .login-card input {
+            width: 100%; padding: 16px 16px 16px 10px;
+            background: transparent; border: none; outline: none;
+            font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem;
+            color: var(--brand-navy); font-weight: 600;
+            text-align: left; /* Override del text-align center anterior */
+        }
+        .login-card input::placeholder { color: #9CA3AF; font-weight: 500; text-transform: none; }
+
+        /* BOTÓN PRIMARIO LOGIN */
+        .btn-primary {
+            background-color: var(--brand-navy); color: var(--white);
+            border: none; padding: 16px; border-radius: 100px;
+            font-size: 1rem; font-weight: 700; cursor: pointer;
+            transition: all 0.2s; margin-top: 16px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
             width: 100%;
-            max-width: 280px;
+            box-shadow: 0 8px 20px rgba(18, 10, 43, 0.15);
+        }
+        .btn-primary:active { transform: scale(0.96); }
+        
+        .btn-primary:disabled { 
+            opacity: 0.5; background-color: #A0A0A0; cursor: not-allowed; box-shadow: none;
         }
 
-        .login-screen input {
-            padding: 12px;
-            border: none;
-            width: 100%;
-            text-align: center;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 1rem;
-            outline: none;
-            color: var(--brand-navy);
-        }
-
-        .login-screen button {
-            padding: 14px 40px;
-            border: none;
-            border-radius: 50px;
-            background: var(--brand-navy);
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1rem;
-            transition: transform 0.2s;
-            box-shadow: 0 4px 10px rgba(18, 10, 43, 0.2);
-        }
-
-        .login-screen button:active {
-            transform: scale(0.95);
+        /* Footer Login */
+        .footer-text {
+            margin-top: 32px; font-size: 0.75rem; color: var(--gray-text); opacity: 0.8;
+            display: flex; align-items: center; gap: 6px; font-weight: 600;
         }
 
         /* --- HEADER CHAT --- */
@@ -206,7 +232,6 @@
         .message { 
             max-width: 85%; padding: 10px 14px; border-radius: var(--radius-bubble); 
             font-size: 0.95rem; line-height: 1.45; position: relative; 
-            /*animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); */
             word-wrap: break-word;
         }
 
@@ -214,7 +239,6 @@
             animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
         }
 
-        /* Mensajes recibidos (Soporte) */
         .message.received {
             align-self: flex-start;
             background: var(--white);
@@ -223,7 +247,6 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
 
-        /* Mensajes enviados (Cliente) */
         .message.sent {
             align-self: flex-end;
             background: var(--brand-navy);
@@ -236,7 +259,7 @@
             display: block; font-size: 0.65rem; margin-top: 4px; opacity: 0.7; text-align: right;
         }
 
-        /* --- INPUT AREA --- */
+        /* --- INPUT AREA DEL CHAT --- */
         .input-area {
             background: var(--white); 
             padding: 12px 16px;
@@ -247,7 +270,8 @@
             z-index: 20;
         }
 
-        .input-wrapper {
+        /* Estilo original de .input-wrapper protegido para el área de chat */
+        .input-area .input-wrapper {
             flex: 1; background: var(--gray-light); border-radius: 24px;
             padding: 8px 16px; display: flex; align-items: center;
             min-height: 44px;
@@ -278,10 +302,8 @@
         }
         .btn-attach:active { background: #e5e7eb; }
 
-        
         @keyframes popIn { from { opacity: 0; transform: scale(0.9) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
         
-        /* Ocultar elementos */
         .hidden { display: none !important; }
     </style>
 </head>
@@ -290,14 +312,31 @@
     <div class="app-container">
         
         <div class="login-screen" id="loginScreen">
-            <div class="login-logo">
-                <span class="material-symbols-rounded" style="font-size: 60px; color: var(--brand-navy);">pets</span>
+            <div class="login-card">
+                <img src="https://pawwi.co/wp-content/uploads/2024/10/LogoPawwi.svg" alt="Pawwi" class="logo-img">
+        
+                <div class="welcome-text">
+                    <h1>Bienvenido</h1>
+                    <p>Conéctate con tu Pawwer para ver cómo está tu peludo 🐶</p>
+                </div>
+        
+                <form class="login-form" id="loginForm" onsubmit="event.preventDefault(); enterChat();">
+                    <div class="input-wrapper">
+                        <span class="material-symbols-rounded input-icon">tag</span>
+                        <input type="text" id="chatCode" placeholder="ID del Chat (ej: PAW-882)" style="text-transform: uppercase;" required autocomplete="off">
+                    </div>
+        
+                    <button type="submit" class="btn-primary" id="enterBtn" disabled>
+                        Entrar al Chat
+                        <span class="material-symbols-rounded">arrow_forward</span>
+                    </button>
+                </form>
+        
+                <p class="footer-text">
+                    <span class="material-symbols-rounded" style="font-size: 16px; color: var(--brand-navy);">verified_user</span>
+                    Pawwi Protected
+                </p>
             </div>
-            <h2>Ingresar Código</h2>
-            <div class="login-input-wrapper">
-                <input type="text" id="chatCode" placeholder="Ej: 6993ecf7..." autocomplete="off">
-            </div>
-            <button onclick="enterChat()">Conectar</button>
         </div>
 
         <div id="chatScreen" class="hidden" style="display: flex; flex-direction: column; height: 100%;">
@@ -332,7 +371,7 @@
                     <span class="material-symbols-rounded">lock</span>
                     <p><strong>Chat seguro.</strong> Tu conversación y tu perrito están protegidos por Pawwi.</p>
                 </div>
-                </div>
+            </div>
 
             <div class="input-area">
                 <button class="btn-attach">
@@ -364,7 +403,22 @@
         const chatIdDisplay = document.getElementById("chatIdDisplay");
         const pawwerName = document.getElementById("pawwerName");
 
+        // Elementos del nuevo Login
+        const chatCodeInput = document.getElementById("chatCode");
+        const enterBtn = document.getElementById("enterBtn");
+
         // --- LÓGICA DE INTERFAZ (UI) ---
+
+        // Habilitar/Deshabilitar botón de entrar según el input (Lógica del overview)
+        chatCodeInput.addEventListener('input', () => {
+            if (chatCodeInput.value.trim().length > 0) {
+                enterBtn.removeAttribute('disabled');
+                enterBtn.style.opacity = "1";
+            } else {
+                enterBtn.setAttribute('disabled', 'true');
+                enterBtn.style.opacity = "0.5";
+            }
+        });
 
         // Ajuste automático de altura del textarea
         messageInput.addEventListener('input', function() {
@@ -390,34 +444,37 @@
 
         // 1. Entrar al chat
         async function enterChat(){
-            const code = document.getElementById("chatCode").value.trim();
+            const code = chatCodeInput.value.trim();
             if(!code){
                 alert("Por favor ingresa un código válido");
                 return;
             }
 
+            // Cambiar estado visual del botón
+            const originalBtnHtml = enterBtn.innerHTML;
+            enterBtn.innerHTML = 'Conectando...';
+            enterBtn.style.opacity = "0.8";
+
             chatId = code;
 
             try{
-                // 🔥 1. Obtener metadata del chat
                 const res = await fetch(`${API}/api/chat/${chatId}`);
                 if(!res.ok){
                     alert("Chat no encontrado");
+                    // Restaurar botón
+                    enterBtn.innerHTML = originalBtnHtml;
+                    enterBtn.style.opacity = "1";
                     return;
                 }
 
                 const chat = await res.json();
-
-                // 🔥 2. Mostrar nombre del Pawwer (empleado)
                 pawwerName.textContent = chat.empleadoCode || "Pawwer";
-
-                // 🔥 3. Actualizar ID visual
                 chatIdDisplay.innerHTML = `
                     <span class="material-symbols-rounded icon-tiny">tag</span>
                     ${chatId.substring(0,8)}...
                 `;
 
-                // 🔥 4. Transición de pantallas
+                // Transición de pantallas
                 loginScreen.classList.add("hidden");
                 chatScreen.classList.remove("hidden");
 
@@ -427,11 +484,13 @@
             }catch(error){
                 console.error("Error cargando chat:", error);
                 alert("Error conectando al chat");
+                // Restaurar botón
+                enterBtn.innerHTML = originalBtnHtml;
+                enterBtn.style.opacity = "1";
             }
         }
 
         // 2. Cargar mensajes
-        // Variable global para rastrear cuántos mensajes hemos pintado
         let renderedMessagesCount = 0;
 
         async function loadMessages(){
@@ -446,21 +505,15 @@
 
                 const messages = await res.json();
                 
-                // Si no hay mensajes nuevos, no hacemos nada (evita parpadeos)
                 if (messages.length <= renderedMessagesCount) return;
 
                 const chatContainer = document.getElementById("message-container");
-                
-                // Obtenemos solo los mensajes que faltan por agregar
                 const newMessages = messages.slice(renderedMessagesCount);
 
                 newMessages.forEach(msg => {
                     const div = document.createElement("div");
-                    
-                    // Añadimos clase base + clase de animación
                     div.classList.add("message", "new-message");
 
-                    // Lógica de estilos (Mío vs Otro)
                     if(msg.senderCode.startsWith("CLI")){
                         div.classList.add("sent");
                     } else {
@@ -478,25 +531,22 @@
                     chatContainer.appendChild(div);
                 });
 
-                // Actualizamos el contador
                 renderedMessagesCount = messages.length;
-
-                // Scroll al fondo suavemente
                 chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
 
             }catch(error){
                 console.error("Error cargando mensajes:", error);
             }
         }
+
         // 3. Enviar mensaje
         async function sendMessage(){
             const text = messageInput.value.trim();
 
             if(!text || !chatId){
-                return; // No alerta intrusiva, simplemente no envía
+                return;
             }
 
-            // Deshabilitar botón temporalmente para evitar doble envío
             sendBtn.classList.add("disabled");
 
             try{
@@ -515,20 +565,14 @@
                 if(!res.ok){
                     const error = await res.text();
                     console.error("Error POST:", res.status, error);
-                    alert("Error enviando mensaje"); // Aquí sí avisamos error
+                    alert("Error enviando mensaje");
                     sendBtn.classList.remove("disabled");
                     return;
                 }
 
-                // Éxito: Limpiar input
                 messageInput.value = "";
                 messageInput.style.height = "auto";
-                
-                // Recargar mensajes inmediatamente
                 await loadMessages();
-                
-                // Mantener el botón deshabilitado hasta que escriban de nuevo
-                // (Ya está vacío el input, así que visualmente sigue disabled)
 
             }catch(error){
                 console.error("Error enviando mensaje:", error);
