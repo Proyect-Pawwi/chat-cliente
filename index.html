@@ -487,59 +487,33 @@
         });
     }
 
-    async function sendMessageAction() {
-        // Usa el texto del textarea, O la imagen en base64 si se cargó una
-        const textToProcess = messageInputValue ? messageInputValue : messageInputElem.value;
-        const text = textToProcess.trim();
-        
-        if (!text || !chatId || isSending) return;
+    // Función auxiliar para redimensionar (puedes usar una librería como Pica o Canvas)
+    async function compressImage(base64Str) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.src = base64Str;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 1200; // Ajusta según necesites
+                let width = img.width;
+                let height = img.height;
 
-        if (!isImage(text)) {
-            const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
-            const phoneRegex = /(?:\d[\s-]*){5,}/;
+                if (width > MAX_WIDTH) {
+                    height *= MAX_WIDTH / width;
+                    width = MAX_WIDTH;
+                }
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL('image/jpeg', 0.7)); // 0.7 es la calidad
+            };
+        });
+    }
 
-            if (emailRegex.test(text)) {
-                alert("No se puede realizar esta acción: No está permitido enviar correos electrónicos.");
-                return; 
-            }
-            if (phoneRegex.test(text)) {
-                alert("No se puede realizar esta acción: No está permitido enviar números de teléfono.");
-                return; 
-            }
-        }
-
-        isSending = true;
-        checkSendButtonState();
-
-        try {
-            const res = await fetch(`${API}/api/messages/create`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    chatId: chatId,
-                    senderCode: "CLI001",
-                    texto: text 
-                })
-            });
-
-            if (!res.ok) {
-                const errorText = await res.text();
-                console.error("Error del servidor:", errorText);
-                alert("Error al enviar. Puede que el archivo sea demasiado grande para el servidor.");
-            } else {
-                console.log("Mensaje/Imagen enviado con éxito");
-                messageInputElem.value = ""; 
-                messageInputValue = "";
-                selectedImage = null; 
-                imagePreviewArea.style.display = 'none';
-                await loadMessages();
-            }
-        } catch (error) {
-            console.error("Error de red enviando:", error);
-        } finally {
-            isSending = false;
-            checkSendButtonState();
-        }
+    // En tu sendMessageAction, antes de enviar:
+    if (isImage(text)) {
+        text = await compressImage(text);
     }
 
     function scrollToBottom() {
