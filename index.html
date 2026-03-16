@@ -374,6 +374,7 @@
     // --- CARGA DE ARCHIVOS / IMÁGENES ---
     btnAttach.addEventListener('click', () => { fileInput.click(); });
 
+    // --- CARGA DE ARCHIVOS / IMÁGENES CON REDIMENSIÓN AGRESIVA ---
     fileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -384,29 +385,57 @@
             img.src = event.target.result;
             
             img.onload = async () => {
-                const MAX_SIZE = 1080; 
-                let width = img.width;
-                let height = img.height;
-                const scale = Math.min(MAX_SIZE / width, MAX_SIZE / height, 1);
-                width *= scale;
-                height *= scale;
+                // Configuración inicial agresiva para evitar el error "Payload Too Large"
+                let currentMaxSize = 800;  // Tamaño máximo inicial (suficiente para chat)
+                let currentQuality = 0.6;  // Calidad inicial 60%
+                let base64String = '';
+                
+                // Límite de caracteres para el String Base64. 
+                // 450,000 caracteres equivalen a ~330KB, lo cual es muy seguro para la mayoría de servidores.
+                const MAX_SAFE_CHARS = 450000; 
 
-                const canvas = document.createElement('canvas');
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d', { alpha: false });
+                const processImage = (maxSize, quality) => {
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    // Calculamos la proporción
+                    const scale = Math.min(maxSize / width, maxSize / height, 1);
+                    width *= scale;
+                    height *= scale;
 
-                if (ctx) {
-                    ctx.fillStyle = '#FFFFFF';
-                    ctx.fillRect(0, 0, width, height);
-                    ctx.imageSmoothingEnabled = true;
-                    ctx.imageSmoothingQuality = 'high';
-                    ctx.drawImage(img, 0, 0, width, height);
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d', { alpha: false });
+
+                    if (ctx) {
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.fillRect(0, 0, width, height);
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = 'high';
+                        ctx.drawImage(img, 0, 0, width, height);
+                    }
+                    // Usamos jpeg porque el peso es más predecible que webp en archivos grandes
+                    return canvas.toDataURL('image/jpeg', quality);
+                };
+
+                // Primer intento
+                base64String = processImage(currentMaxSize, currentQuality);
+
+                // Si el string sigue siendo muy largo, entramos en un bucle de reducción
+                let attempts = 0;
+                while (base64String.length > MAX_SAFE_CHARS && attempts < 5) {
+                    console.warn(`Imagen demasiado grande (${base64String.length} chars). Reduciendo...`);
+                    currentMaxSize *= 0.8; // Reducimos dimensiones un 20%
+                    currentQuality *= 0.7; // Reducimos calidad un 30%
+                    base64String = processImage(currentMaxSize, currentQuality);
+                    attempts++;
                 }
 
-                messageInputValue = canvas.toDataURL('image/webp', 0.55);
+                console.log(`Imagen final procesada: ${base64String.length} caracteres.`);
+                messageInputValue = base64String;
                 
-                // En Angular se enviaba automáticamente tras seleccionar la imagen
+                // Enviar automáticamente tras el procesamiento exitoso
                 await sendMessageAction(); 
                 
                 if (e.target) e.target.value = '';
