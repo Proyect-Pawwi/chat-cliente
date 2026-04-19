@@ -313,6 +313,8 @@
         e.preventDefault();
         const code = chatCodeInput.value.trim();
         if (!code) { alert("Por favor ingresa un código válido"); return; }
+
+        await autoLogin(code);
         
         chatId = code;
         try {
@@ -576,6 +578,55 @@
             chatArea.scrollTo({ top: chatArea.scrollHeight, behavior: 'smooth' });
         }, 100);
     }
+
+    // --- AUTO LOGIN DESDE URL ---
+window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    let codeFromUrl = params.get('code');
+
+    // Opcional: soportar formato con hash (#PAW-882)
+    if (!codeFromUrl && window.location.hash) {
+        codeFromUrl = window.location.hash.replace('#', '');
+    }
+
+    if (codeFromUrl) {
+        codeFromUrl = codeFromUrl.toUpperCase().trim();
+        
+        chatCodeInput.value = codeFromUrl;
+        btnEnterChat.removeAttribute('disabled');
+
+        // Ejecuta el mismo flujo del submit
+        autoLogin(codeFromUrl);
+    }
+});
+
+// Extraemos la lógica del submit a una función reutilizable
+async function autoLogin(code) {
+    chatId = code;
+
+    try {
+        const res = await fetch(`${API}/api/chat/${chatId}`);
+        if (!res.ok) {
+            alert("Chat no encontrado");
+            return;
+        }
+
+        const chat = await res.json();
+        pawwerName = chat.empleadoCode || "Pawwer";
+        pawwerNameDisplay.textContent = pawwerName;
+        chatIdDisplay.textContent = chatId.substring(0, 8);
+
+        isChatActive = true;
+        loginScreen.style.display = 'none';
+        chatScreen.style.display = 'flex';
+
+        loadMessages();
+        interval = setInterval(loadMessages, 3000);
+    } catch (error) {
+        console.error("Error cargando chat:", error);
+        alert("Error conectando al chat");
+    }
+}
 </script>
 
 </body>
